@@ -6,9 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"task-management/helper"
 	"task-management/model/domain"
+
+	"github.com/google/uuid"
 )
 
 type UserRepositoryImpl struct {
@@ -71,7 +72,7 @@ func (r *UserRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, user domain
 		user.Role = oldUser.Role
 	}
 
-	SQL := "UPDATE users SET full_name=$1, email=$2, password_hash=$3, role=$4 WHERE id=$5 AND deleted_at IS NULL"
+	SQL := "UPDATE users SET full_name=$1, email=$2, password_hash=$3, role=$4, updated_at=$5 WHERE id=$6 AND deleted_at IS NULL"
 
 	if tx != nil {
 		_, err = tx.ExecContext(ctx, SQL,
@@ -79,6 +80,7 @@ func (r *UserRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, user domain
 			strings.ToLower(strings.TrimSpace(user.Email)),
 			user.PasswordHash,
 			user.Role,
+			time.Now(),
 			user.Id,
 		)
 	} else {
@@ -87,6 +89,7 @@ func (r *UserRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, user domain
 			strings.ToLower(strings.TrimSpace(user.Email)),
 			user.PasswordHash,
 			user.Role,
+			time.Now(),
 			user.Id,
 		)
 	}
@@ -107,7 +110,7 @@ func (r *UserRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, userId uuid
 }
 
 func (r *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, userId uuid.UUID) (domain.User, error) {
-	SQL := "SELECT id, full_name, email, password_hash, role FROM users WHERE id=$1 AND deleted_at IS NULL"
+	SQL := "SELECT id, full_name, email, password_hash, role, created_at, updated_at, deleted_at FROM users WHERE id=$1 AND deleted_at IS NULL"
 	var row *sql.Row
 	if tx != nil {
 		row = tx.QueryRowContext(ctx, SQL, userId)
@@ -116,7 +119,7 @@ func (r *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, userId uu
 	}
 
 	user := domain.User{}
-	err := row.Scan(&user.Id, &user.FullName, &user.Email, &user.PasswordHash, &user.Role)
+	err := row.Scan(&user.Id, &user.FullName, &user.Email, &user.PasswordHash, &user.Role, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return domain.User{Id: uuid.Nil}, nil
@@ -128,7 +131,7 @@ func (r *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, userId uu
 
 func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (domain.User, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
-	SQL := "SELECT id, full_name, email, password_hash, role FROM users WHERE email=$1 AND deleted_at IS NULL"
+	SQL := "SELECT id, full_name, email, password_hash, role, created_at, updated_at, deleted_at FROM users WHERE email=$1 AND deleted_at IS NULL"
 
 	var row *sql.Row
 	if tx != nil {
@@ -138,7 +141,7 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email 
 	}
 
 	user := domain.User{}
-	err := row.Scan(&user.Id, &user.FullName, &user.Email, &user.PasswordHash, &user.Role)
+	err := row.Scan(&user.Id, &user.FullName, &user.Email, &user.PasswordHash, &user.Role, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return domain.User{Id: uuid.Nil}, nil
@@ -149,7 +152,7 @@ func (r *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email 
 }
 
 func (r *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.User {
-	SQL := "SELECT id, full_name, email, password_hash, role FROM users WHERE deleted_at IS NULL"
+	SQL := "SELECT id, full_name, email, password_hash, role, created_at, updated_at, deleted_at FROM users WHERE deleted_at IS NULL"
 	var rows *sql.Rows
 	var err error
 	if tx != nil {
@@ -163,7 +166,7 @@ func (r *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.U
 	var users []domain.User
 	for rows.Next() {
 		user := domain.User{}
-		err := rows.Scan(&user.Id, &user.FullName, &user.Email, &user.PasswordHash, &user.Role)
+		err := rows.Scan(&user.Id, &user.FullName, &user.Email, &user.PasswordHash, &user.Role, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt)
 		helper.PanicIfError(err)
 		users = append(users, user)
 	}

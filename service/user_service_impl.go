@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"github.com/golang-jwt/jwt/v5"
 
 	"task-management/helper"
 	"task-management/model/domain"
@@ -82,10 +82,13 @@ func (s *UserServiceImpl) Register(ctx context.Context, request web.UserRegister
 	s.ProfileRepository.Save(ctx, tx, profile)
 
 	return web.UserResponse{
-		Id:       savedUser.Id,
-		FullName: savedUser.FullName,
-		Email:    savedUser.Email,
-		Role:     savedUser.Role,
+		Id:        savedUser.Id,
+		FullName:  savedUser.FullName,
+		Email:     savedUser.Email,
+		Role:      savedUser.Role,
+		CreatedAt: savedUser.CreatedAt,
+		UpdatedAt: savedUser.UpdatedAt,
+		DeletedAt: savedUser.DeletedAt,
 	}, nil
 }
 
@@ -225,10 +228,13 @@ func (s *UserServiceImpl) Update(ctx context.Context, request web.UserUpdateRequ
 	updatedUser := s.UserRepository.Update(ctx, tx, existingUser)
 
 	return web.UserResponse{
-		Id:       updatedUser.Id,
-		FullName: updatedUser.FullName,
-		Email:    updatedUser.Email,
-		Role:     updatedUser.Role,
+		Id:        updatedUser.Id,
+		FullName:  updatedUser.FullName,
+		Email:     updatedUser.Email,
+		Role:      updatedUser.Role,
+		CreatedAt: updatedUser.CreatedAt,
+		UpdatedAt: updatedUser.UpdatedAt,
+		DeletedAt: updatedUser.DeletedAt,
 	}, nil
 }
 
@@ -258,10 +264,13 @@ func (s *UserServiceImpl) FindById(ctx context.Context, userId uuid.UUID) (web.U
 	}
 
 	return web.UserResponse{
-		Id:       user.Id,
-		FullName: user.FullName,
-		Email:    user.Email,
-		Role:     user.Role,
+		Id:        user.Id,
+		FullName:  user.FullName,
+		Email:     user.Email,
+		Role:      user.Role,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		DeletedAt: user.DeletedAt,
 	}, nil
 }
 
@@ -277,10 +286,13 @@ func (s *UserServiceImpl) FindAll(ctx context.Context) ([]web.UserResponse, erro
 	responses := make([]web.UserResponse, 0, len(users))
 	for _, user := range users {
 		responses = append(responses, web.UserResponse{
-			Id:       user.Id,
-			FullName: user.FullName,
-			Email:    user.Email,
-			Role:     user.Role,
+			Id:        user.Id,
+			FullName:  user.FullName,
+			Email:     user.Email,
+			Role:      user.Role,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+			DeletedAt: user.DeletedAt,
 		})
 	}
 	return responses, nil

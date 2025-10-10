@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"task-management/helper"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func NewDB() *sql.DB {
-	db, err := sql.Open("pgx", "postgres://postgres:rani2510@localhost:5432/Management?sslmode=disable")
+	db, err := sql.Open("pgx", "postgres://postgres:postgres@localhost:5435/task-management-sarana?sslmode=disable")
 	helper.PanicIfError(err)
 
 	// cek koneksi
