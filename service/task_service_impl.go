@@ -60,13 +60,29 @@ func (service *TaskServiceImpl) Update(ctx context.Context, taskId uuid.UUID, re
 	task, err := service.TaskRepository.FindById(ctx, taskId)
 	helper.PanicIfError(err)
 
-	task.Title = request.Title
-	task.Status = request.Status
-	task.Priority = request.Priority
-	task.Effort = request.Effort
-	task.DifficultyLevel = request.DifficultyLevel
-	task.Deliverable = request.Deliverable
-	task.Bottleneck = request.Bottleneck
+	// Only update fields that are provided (non-nil)
+	if request.Title != nil {
+		task.Title = *request.Title
+	}
+	if request.Status != nil {
+		task.Status = *request.Status
+	}
+	if request.Priority != nil {
+		task.Priority = *request.Priority
+	}
+	if request.Effort != nil {
+		task.Effort = *request.Effort
+	}
+	if request.DifficultyLevel != nil {
+		task.DifficultyLevel = *request.DifficultyLevel
+	}
+	if request.Deliverable != nil {
+		task.Deliverable = *request.Deliverable
+	}
+	if request.Bottleneck != nil {
+		task.Bottleneck = *request.Bottleneck
+	}
+	// Note: Progress and ContinueTomorrow are handled in frontend only
 	task.UpdatedAt = time.Now()
 
 	result, err := service.TaskRepository.Update(ctx, task)

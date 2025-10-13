@@ -1,8 +1,9 @@
 package web
 
 import (
-"github.com/google/uuid"
-"time"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type TaskCreateRequest struct {
@@ -17,13 +18,13 @@ type TaskCreateRequest struct {
 }
 
 type TaskUpdateRequest struct {
-	Title          string    `json:"title" validate:"required"`
-	Status         string    `json:"status" validate:"required,oneof=todo in-progress completed"`
-	Priority       string    `json:"priority" validate:"required,oneof=low medium high"`
-	Effort         int       `json:"effort" validate:"required"`
-	DifficultyLevel string    `json:"difficulty_level"`
-	Deliverable    string    `json:"deliverable"`
-	Bottleneck     string    `json:"bottleneck"`
+	Title          *string   `json:"title"`
+	Status         *string   `json:"status" validate:"omitempty,oneof=todo in-progress completed"`
+	Priority       *string   `json:"priority" validate:"omitempty,oneof=low medium high"`
+	Effort         *int      `json:"effort"`
+	DifficultyLevel *string   `json:"difficulty_level"`
+	Deliverable    *string   `json:"deliverable"`
+	Bottleneck     *string   `json:"bottleneck"`
 }
 
 type TaskResponse struct {
