@@ -16,6 +16,8 @@ func ToTaskResponse(task domain.Task) web.TaskResponse {
 		DifficultyLevel: task.DifficultyLevel,
 		Deliverable:    task.Deliverable,
 		Bottleneck:     task.Bottleneck,
+		ContinueTomorrow: task.ContinueTomorrow,
+		Progress:       task.Progress,
 		CreatedAt:      task.CreatedAt,
 		UpdatedAt:      task.UpdatedAt,
 	}

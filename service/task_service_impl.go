@@ -82,7 +82,12 @@ func (service *TaskServiceImpl) Update(ctx context.Context, taskId uuid.UUID, re
 	if request.Bottleneck != nil {
 		task.Bottleneck = *request.Bottleneck
 	}
-	// Note: Progress and ContinueTomorrow are handled in frontend only
+	if request.ContinueTomorrow != nil {
+		task.ContinueTomorrow = *request.ContinueTomorrow
+	}
+	if request.Progress != nil {
+		task.Progress = *request.Progress
+	}
 	task.UpdatedAt = time.Now()
 
 	result, err := service.TaskRepository.Update(ctx, task)

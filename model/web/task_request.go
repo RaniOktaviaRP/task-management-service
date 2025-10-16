@@ -25,6 +25,8 @@ type TaskUpdateRequest struct {
 	DifficultyLevel *string   `json:"difficulty_level"`
 	Deliverable    *string   `json:"deliverable"`
 	Bottleneck     *string   `json:"bottleneck"`
+	ContinueTomorrow *bool    `json:"continue_tomorrow"`
+	Progress       *string   `json:"progress"`
 }
 
 type TaskResponse struct {
@@ -37,6 +39,8 @@ type TaskResponse struct {
 	DifficultyLevel string    `json:"difficulty_level"`
 	Deliverable    string    `json:"deliverable"`
 	Bottleneck     string    `json:"bottleneck"`
+	ContinueTomorrow bool     `json:"continue_tomorrow"`
+	Progress       string    `json:"progress"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }

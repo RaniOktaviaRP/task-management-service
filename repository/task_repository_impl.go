@@ -42,15 +42,15 @@ func (repository *TaskRepositoryImpl) Update(ctx context.Context, task domain.Ta
 	query := `UPDATE tasks SET 
 		project_id = $1, title = $2, status = $3, priority = $4,
 		effort = $5, difficulty_level = $6, deliverable = $7, bottleneck = $8,
-		updated_at = $9
-		WHERE id = $10`
+		progress = $9, continue_tomorrow = $10, updated_at = $11
+		WHERE id = $12`
 
 	task.UpdatedAt = time.Now()
 
 	result, err := repository.DB.ExecContext(ctx, query,
 		task.ProjectId, task.Title, task.Status, task.Priority,
 		task.Effort, task.DifficultyLevel, task.Deliverable, task.Bottleneck,
-		task.UpdatedAt, task.Id)
+		task.Progress, task.ContinueTomorrow, task.UpdatedAt, task.Id)
 
 	if err != nil {
 		return task, err

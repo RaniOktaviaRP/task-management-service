@@ -16,6 +16,8 @@ type Task struct {
 	DifficultyLevel string    `gorm:"type:text"`
 	Deliverable    string    `gorm:"type:text"`
 	Bottleneck     string    `gorm:"type:text"`
+	Progress       string    `gorm:"type:text"`
+	ContinueTomorrow bool     `gorm:"type:boolean;default:false"`
 	CreatedAt      time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 	UpdatedAt      time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 }
