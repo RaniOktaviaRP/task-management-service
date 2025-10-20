@@ -21,8 +21,8 @@ func NewTaskRepository(db *sql.DB) TaskRepository {
 }
 
 func (repository *TaskRepositoryImpl) Save(ctx context.Context, task domain.Task) (domain.Task, error) {
-	query := `INSERT INTO tasks (id, project_id, title, status, priority, effort, difficulty_level, deliverable, bottleneck, created_at, updated_at)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+	query := `INSERT INTO tasks (id, project_id, title, status, priority, effort, difficulty_level, deliverable, bottleneck, progress, continue_tomorrow, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
 
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()
@@ -30,6 +30,7 @@ func (repository *TaskRepositoryImpl) Save(ctx context.Context, task domain.Task
 	_, err := repository.DB.ExecContext(ctx, query,
 		task.Id, task.ProjectId, task.Title, task.Status, task.Priority,
 		task.Effort, task.DifficultyLevel, task.Deliverable, task.Bottleneck,
+		task.Progress, task.ContinueTomorrow,
 		task.CreatedAt, task.UpdatedAt)
 
 	if err != nil {
@@ -89,13 +90,17 @@ func (repository *TaskRepositoryImpl) Delete(ctx context.Context, taskId uuid.UU
 }
 
 func (repository *TaskRepositoryImpl) FindById(ctx context.Context, taskId uuid.UUID) (domain.Task, error) {
-	query := `SELECT id, project_id, title, status, priority, effort, difficulty_level, deliverable, bottleneck, created_at, updated_at
+	query := `SELECT id, project_id, title, status, priority, effort, difficulty_level, deliverable, bottleneck, progress, continue_tomorrow, created_at, updated_at
 		FROM tasks WHERE id = $1`
 
 	var task domain.Task
+	var progress sql.NullString
+	var continueTomorrow sql.NullBool
+	
 	err := repository.DB.QueryRowContext(ctx, query, taskId).Scan(
 		&task.Id, &task.ProjectId, &task.Title, &task.Status, &task.Priority,
 		&task.Effort, &task.DifficultyLevel, &task.Deliverable, &task.Bottleneck,
+		&progress, &continueTomorrow,
 		&task.CreatedAt, &task.UpdatedAt)
 
 	if err == sql.ErrNoRows {
@@ -106,11 +111,24 @@ func (repository *TaskRepositoryImpl) FindById(ctx context.Context, taskId uuid.
 		return task, err
 	}
 
+	// Handle NULL values
+	if progress.Valid {
+		task.Progress = progress.String
+	} else {
+		task.Progress = ""
+	}
+	
+	if continueTomorrow.Valid {
+		task.ContinueTomorrow = continueTomorrow.Bool
+	} else {
+		task.ContinueTomorrow = false
+	}
+
 	return task, nil
 }
 
 func (repository *TaskRepositoryImpl) FindByProjectId(ctx context.Context, projectId uuid.UUID) ([]domain.Task, error) {
-	query := `SELECT id, project_id, title, status, priority, effort, difficulty_level, deliverable, bottleneck, created_at, updated_at
+	query := `SELECT id, project_id, title, status, priority, effort, difficulty_level, deliverable, bottleneck, progress, continue_tomorrow, created_at, updated_at
 		FROM tasks WHERE project_id = $1`
 
 	rows, err := repository.DB.QueryContext(ctx, query, projectId)
@@ -122,13 +140,31 @@ func (repository *TaskRepositoryImpl) FindByProjectId(ctx context.Context, proje
 	var tasks []domain.Task
 	for rows.Next() {
 		var task domain.Task
+		var progress sql.NullString
+		var continueTomorrow sql.NullBool
+		
 		err := rows.Scan(
 			&task.Id, &task.ProjectId, &task.Title, &task.Status, &task.Priority,
 			&task.Effort, &task.DifficultyLevel, &task.Deliverable, &task.Bottleneck,
+			&progress, &continueTomorrow,
 			&task.CreatedAt, &task.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
+		
+		// Handle NULL values
+		if progress.Valid {
+			task.Progress = progress.String
+		} else {
+			task.Progress = ""
+		}
+		
+		if continueTomorrow.Valid {
+			task.ContinueTomorrow = continueTomorrow.Bool
+		} else {
+			task.ContinueTomorrow = false
+		}
+		
 		tasks = append(tasks, task)
 	}
 
@@ -140,7 +176,7 @@ func (repository *TaskRepositoryImpl) FindByProjectId(ctx context.Context, proje
 }
 
 func (repository *TaskRepositoryImpl) FindAll(ctx context.Context) ([]domain.Task, error) {
-	query := `SELECT id, project_id, title, status, priority, effort, difficulty_level, deliverable, bottleneck, created_at, updated_at
+	query := `SELECT id, project_id, title, status, priority, effort, difficulty_level, deliverable, bottleneck, progress, continue_tomorrow, created_at, updated_at
 		FROM tasks`
 
 	rows, err := repository.DB.QueryContext(ctx, query)
@@ -152,13 +188,31 @@ func (repository *TaskRepositoryImpl) FindAll(ctx context.Context) ([]domain.Tas
 	var tasks []domain.Task
 	for rows.Next() {
 		var task domain.Task
+		var progress sql.NullString
+		var continueTomorrow sql.NullBool
+		
 		err := rows.Scan(
 			&task.Id, &task.ProjectId, &task.Title, &task.Status, &task.Priority,
 			&task.Effort, &task.DifficultyLevel, &task.Deliverable, &task.Bottleneck,
+			&progress, &continueTomorrow,
 			&task.CreatedAt, &task.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
+		
+		// Handle NULL values
+		if progress.Valid {
+			task.Progress = progress.String
+		} else {
+			task.Progress = ""
+		}
+		
+		if continueTomorrow.Valid {
+			task.ContinueTomorrow = continueTomorrow.Bool
+		} else {
+			task.ContinueTomorrow = false
+		}
+		
 		tasks = append(tasks, task)
 	}
 
